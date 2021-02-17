@@ -44,12 +44,16 @@ int main(int argc, char *argv[])
     mat_create(&fst);
     mat_create(&sec);
     
+    mat_write(&fst, "data1.txt");
+    mat_write(&sec, "data2.txt");
+
     printf("\nfst:\n");
     mat_print(&fst);
     printf("Sec:\n");
     mat_print(&sec);
     printf("\n\n");
     mat_mul_threaded(&fst, &sec, &mul);
+    mat_write(&mul, "res.txt");
     STOP_CLOCK(program);
     
 

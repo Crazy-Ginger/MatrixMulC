@@ -27,17 +27,12 @@ int main(int argc, char *argv[])
     struct Matrix sec = {0};
     struct Matrix mul = {0};
     fst.row = fst.col = sec.row = sec.col = dim;
-    // fst.row = fst.col = sec.row = sec.col = dim;
 
     // starts program counter clock
     START_CLOCK(program);
-    // fst.ptr = (int *) malloc(sizeof(int) *  dim *  dim);
-    // sec.ptr = (int *) malloc(sizeof(int) *  dim *  dim);
-    // mul.ptr = (int *) malloc(sizeof(int) *  dim *  dim);
 
     mat_create(&fst);
     mat_create(&sec);
-
    
     mat_mul(&fst, &sec, &mul);
     STOP_CLOCK(program);
@@ -51,7 +46,11 @@ int main(int argc, char *argv[])
         printf("Mul:\n");
         mat_print(&mul);
     }
-    
+
+    mat_write(&fst, "data1.txt");
+    mat_write(&sec, "data2.txt");
+    mat_write(&mul, "res.txt");
+
     free(fst.ptr);
     free(sec.ptr);
     free(mul.ptr);

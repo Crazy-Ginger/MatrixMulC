@@ -78,12 +78,19 @@ void mat_write(struct Matrix *mat, char *file_name)
     fp = fopen(file_name, "w");
     if (fp == NULL) 
         exit(EXIT_FAILURE);
+    int line_counter = 1;
     for (size_t i = 0; i < mat->col*mat->row; i++)
     {
-        fprintf(fp, "%lli, ", *(mat->ptr + i));
-        if (i % mat->col == 1)
+        fprintf(fp, "%lli", *(mat->ptr + i));
+        if (line_counter == mat->col)
         {
             fprintf(fp, "\n");
+            line_counter = 1;
+        }
+        else
+        {
+            fprintf(fp, ", ");
+            line_counter++;
         }
     }
     fclose(fp);
@@ -175,7 +182,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
     result->col = mat2->col;
     result->row = mat1->row;
 
-    //gets number of system cores then leaves one (for other operations)
+    //gets number of threads (leaves one for other operations)
     int status;
     size_t running_threads = 0;
     size_t max_threads = sysconf(_SC_NPROCESSORS_ONLN) - 1;

@@ -3,5 +3,7 @@ single
 thread
 a.out
 
+tmp.c
 test.py
 .vscode
+*.txt
