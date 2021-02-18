@@ -147,6 +147,7 @@ void mat_mul(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *result)
 void *mul_threaded(void *passed)
 {
     struct Passer *pass = (struct Passer *) passed;
+    printf("Thread called with id: %zi\n", pass->id);
     // printf("Thread called with id:%zu  on r:%zu  c:%zu\n", pass->id, pass->row, pass->col);
 
     long long tot = 0;
@@ -157,11 +158,12 @@ void *mul_threaded(void *passed)
 
         long long tmp = *(pass->mat1->ptr + m1_ind) * *(pass->mat2->ptr + m2_ind);
 
-        printf("id: %zu :~\tk: %zu\t r_ind: %zu = %lli\t c_ind: %zu = %lli\t =tmp: %lli\n", pass->id, k, m1_ind, *(pass->mat1->ptr + m1_ind),  m2_ind, *(pass->mat2->ptr + m2_ind), tmp);
+        // printf("id: %zu :~\tk: %zu\t r_ind: %zu = %lli\t c_ind: %zu = %lli\t =tmp: %lli\n", pass->id, k, m1_ind, *(pass->mat1->ptr + m1_ind),  m2_ind, *(pass->mat2->ptr + m2_ind), tmp);
         tot += tmp;
     }
-    printf("id: %zu\ttot: %lli\n", pass->id, tot);
+    printf("id: %zi\ttot: %lli\n", pass->id, tot);
     *(pass->result->ptr + (pass->row * pass->result->row) + pass->col) = tot;
+    printf("id: %zi closed\n", pass->id);
     pthread_exit(0);
 }
 
@@ -182,29 +184,31 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
     result->col = mat2->col;
     result->row = mat1->row;
 
-    //gets number of threads (leaves one for other operations)
-    int status;
+    // gets number of threads (leaves one for other operations)
+    int status = 0;
     size_t running_threads = 0;
-    size_t max_threads = sysconf(_SC_NPROCESSORS_ONLN) - 1;
+    const size_t max_threads = sysconf(_SC_NPROCESSORS_ONLN) - 1;
     pthread_t threads[max_threads];
+    struct Passer passers[max_threads];
+    printf("Max_threads: %zu\n", max_threads);
     
     for (size_t row = 0; row < mat1->row; row++)
     {
         for (size_t col = 0; col < mat2->col; col++)
         {
-            struct Passer pass;
-            pass.col = col;
-            pass.row = row;
-            pass.mat1 = mat1;
-            pass.mat2 = mat2;
-            pass.result = result;
-            printf("Opening thread id: %li upon: %zu %zu\n", running_threads, row, col);
+            passers[running_threads].col = col;
+            passers[running_threads].row = row;
+            passers[running_threads].mat1 = mat1;
+            passers[running_threads].mat2 = mat2;
+            passers[running_threads].result = result;
+            
             if (running_threads < max_threads)
             {
                 // issues passing the same block of memery to be editted?
                 
-                pass.id = running_threads;
-                status = pthread_create(&threads[running_threads], NULL, mul_threaded, &pass);
+                passers[running_threads].id = running_threads;
+                printf("ifOpening thread id: %li upon: %zi %zu\n", running_threads, row, col);
+                status = pthread_create(&threads[running_threads], NULL, mul_threaded, &passers[running_threads]);
                 if (status != 0)
                 {
                     printf("Thread %zu failed to initialize correctly\n", running_threads);
@@ -214,7 +218,6 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
             }
             else
             {
-                printf("\t Running else\n");
                 // join all threads
                 for (size_t i = 0; i < max_threads; i++)
                 {
@@ -225,6 +228,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
                         exit(EXIT_FAILURE);
                     }
                     printf("Joined thread %zu", i);
+                    passers[i].id = -1;
                     --running_threads;
                 }
 
@@ -234,8 +238,9 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
                     exit(EXIT_FAILURE);
                 }
                 // then run for current selection
-                pass.id = running_threads;
-                pthread_create(&threads[running_threads], NULL, mul_threaded, (void *) &pass);
+                passers[running_threads].id = running_threads;
+                printf("elseOpening thread id: %zi upon: %zu %zu\n", passers[running_threads].id, row, col);
+                pthread_create(&threads[running_threads], NULL, mul_threaded, (void *) &passers[running_threads]);
                 ++running_threads;
             }
         }

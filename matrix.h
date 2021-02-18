@@ -16,7 +16,7 @@ struct Matrix
 
 struct Passer
 {
-    size_t id;
+    ssize_t id;
     struct Matrix *mat1;
     struct Matrix *mat2;
     struct Matrix *result;
