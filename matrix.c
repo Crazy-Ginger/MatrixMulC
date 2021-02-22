@@ -7,6 +7,11 @@
 
 void mat_print(struct Matrix *mat)
 {
+    /**
+     *  Prints matrix to commandline, formatted 
+     *
+     *  @param Matrix* matrix to be displayed
+    **/
     for (size_t row = 0; row < mat->row; row++)
     {
         for (size_t col= 0; col < mat->col; col++)
@@ -21,6 +26,15 @@ void mat_print(struct Matrix *mat)
 
 int mat_read(struct Matrix *mat, char *file_name)
 {
+    /**
+     *  Reads in matrix from file in the format:
+     *  1, 2, 3
+     *  3, 4, 5
+     *  6, 7, 8
+     *
+     *  @param Matrix* mat matrix to have values assigned
+     *  @param char* file_name name of file to be read
+    **/
     if (mat->ptr != NULL) 
         free(mat->ptr);
     
@@ -74,6 +88,15 @@ int mat_read(struct Matrix *mat, char *file_name)
 
 void mat_write(struct Matrix *mat, char *file_name)
 {
+    /**
+     * Write the passed matrix to a file, in the format:
+     * 1, 2, 3
+     * 3, 4, 5
+     * 5, 6, 7
+     *
+     * @param Matrix* mat matrix to be written
+     * @param char* file_name name of file to be created and written to
+    **/
     FILE *fp;
     fp = fopen(file_name, "w");
     if (fp == NULL) 
@@ -98,6 +121,11 @@ void mat_write(struct Matrix *mat, char *file_name)
 
 void mat_create(struct Matrix *mat)
 {
+    /**
+     * Creates a random matrix of values n, where 0 < n < 100
+     *
+     * @param Matrix* mat matrix to have values written to
+    **/
     // can't trust pointers these days, better to do it yourself
     if (mat->ptr != NULL) 
         free(mat->ptr);
@@ -114,6 +142,13 @@ void mat_create(struct Matrix *mat)
 
 void mat_mul(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *result)
 {
+    /**
+     * Multiplies mat1 and mat2 together and stores the result into result
+     *
+     * @param Matrix* mat1 first matrix to multiply
+     * @param Matrix* mat2 second matrix to multiply
+     * @param Matrix* result matrix of result
+    **/
     //checks validity of multiplication
     if (mat1->col != mat2->row)
     {
@@ -146,6 +181,11 @@ void mat_mul(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *result)
 
 void *mul_threaded(void *passed)
 {
+    /**
+     * Finds the value of a single element in the result matrix
+     *
+     * @param void* passed struct containing details for multiplication
+    **/
     struct Passer *pass = (struct Passer *) passed;
     // printf("Thread called with id: %zi\n", pass->id);
     // printf("Thread called with id:%zu  on r:%zu  c:%zu\n", pass->id, pass->row, pass->col);
@@ -172,6 +212,15 @@ void *mul_threaded(void *passed)
 
 void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *result)
 {
+    /**
+     * Multiplies mat1 and mat2 together within threads and stores the result into result
+     * Creates n-1 threads, where n is threads of the CPU
+     *
+     * @param Matrix* mat1 first matrix to multiply
+     * @param Matrix* mat2 second matrix to multiply
+     * @param Matrix* result matrix of result
+    **/
+
     //checks validity of multiplication
     if (mat1->col != mat2->row)
     {
