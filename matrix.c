@@ -147,7 +147,7 @@ void mat_mul(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *result)
 void *mul_threaded(void *passed)
 {
     struct Passer *pass = (struct Passer *) passed;
-    printf("Thread called with id: %zi\n", pass->id);
+    // printf("Thread called with id: %zi\n", pass->id);
     // printf("Thread called with id:%zu  on r:%zu  c:%zu\n", pass->id, pass->row, pass->col);
 
     long long tot = 0;
@@ -155,17 +155,18 @@ void *mul_threaded(void *passed)
     {
         size_t m1_ind = (pass->row * pass->mat1->col) + k;
         size_t m2_ind = (pass->mat2->col * k) + pass->col;
+        // printf("id: %zu mult: %zu x %zu\t", pass->id, *(pass->mat1->ptr + m1_ind), *(pass->mat2->ptr + m2_ind));
 
         long long tmp = *(pass->mat1->ptr + m1_ind) * *(pass->mat2->ptr + m2_ind);
 
         // printf("id: %zu :~\tk: %zu\t r_ind: %zu = %lli\t c_ind: %zu = %lli\t =tmp: %lli\n", pass->id, k, m1_ind, *(pass->mat1->ptr + m1_ind),  m2_ind, *(pass->mat2->ptr + m2_ind), tmp);
         tot += tmp;
     }
-    printf("id: %zi\ttot: %lli\n", pass->id, tot);
+    // printf("id: %zi\ttot: %lli\n", pass->id, tot);
     pthread_mutex_lock(&locker);
     *(pass->result->ptr + (pass->row * pass->result->row) + pass->col) = tot;
     pthread_mutex_unlock(&locker);
-    printf("id: %zi closed\n", pass->id);
+    // printf("id: %zi closed\n", pass->id);
     pthread_exit(0);
 }
 
@@ -192,7 +193,6 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
     const size_t max_threads = sysconf(_SC_NPROCESSORS_ONLN) - 1;
     pthread_t threads[max_threads];
     struct Passer passers[max_threads];
-    printf("Max_threads: %zu\n", max_threads);
 
     // initialise mutex and thread attributes
     pthread_mutex_init(&locker, NULL);
@@ -214,11 +214,12 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
                 // issues passing the same block of memery to be editted?
                 
                 passers[running_threads].id = running_threads;
-                printf("ifOpening thread id: %li upon: %zi %zu\n", running_threads, row, col);
+                printf("Opening thread id: %li upon: %zi %zu\n", running_threads, row, col);
                 status = pthread_create(&threads[running_threads], &thread_att, mul_threaded, &passers[running_threads]);
                 if (status != 0)
                 {
-                    printf("Thread %zu failed to initialize correctly\n", running_threads);
+                    fprintf(stderr, "Thread %zu failed to initialize correctly\n", running_threads);
+                    perror("");
                     exit(EXIT_FAILURE);
                 }
                 ++running_threads;
@@ -234,7 +235,8 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
                         printf("Thread %zu failed to join correctly\n", i);
                         exit(EXIT_FAILURE);
                     }
-                    printf("Joined thread %zu", i);
+                    else
+                        printf("Thread %zu joined successfully in else\n", i);
                     passers[i].id = -1;
                     --running_threads;
                 }
@@ -246,7 +248,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
                 }
                 // then run for current selection
                 passers[running_threads].id = running_threads;
-                printf("elseOpening thread id: %zi upon: %zu %zu\n", passers[running_threads].id, row, col);
+                printf("Opening thread id: %li upon: %zi %zu\n", running_threads, row, col);
                 pthread_create(&threads[running_threads], NULL, mul_threaded, (void *) &passers[running_threads]);
                 ++running_threads;
             }
@@ -261,6 +263,8 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
             printf("Thread %zu failed to join correctly\n", i);
             exit(EXIT_FAILURE);
         }
+        else
+            printf("Thread %zu joined successfully finaly\n", i);
     }
 }
 
