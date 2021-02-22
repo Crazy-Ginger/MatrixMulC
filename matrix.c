@@ -266,6 +266,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
         else
             printf("Thread %zu joined successfully finaly\n", i);
     }
+    pthread_mutex_destroy(&locker);
 }
 
 // old functions
