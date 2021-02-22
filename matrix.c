@@ -166,7 +166,7 @@ void *mul_threaded(void *passed)
     pthread_mutex_lock(&locker);
     *(pass->result->ptr + (pass->row * pass->result->row) + pass->col) = tot;
     pthread_mutex_unlock(&locker);
-    // printf("id: %zi closed\n", pass->id);
+    printf("id: %zi closed\n", pass->id);
     pthread_exit(0);
 }
 
@@ -232,7 +232,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
                     status = pthread_join(threads[i], NULL);
                     if (status != 0)
                     {
-                        printf("Thread %zu failed to join correctly\n", i);
+                        fprintf(stderr, "Thread %zu failed to join correctly\n", i);
                         exit(EXIT_FAILURE);
                     }
                     else
@@ -243,7 +243,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
 
                 if (running_threads != 0)
                 {
-                    printf("Not all threads closed\n");
+                    fprintf(stderr, "Not all threads closed\n");
                     exit(EXIT_FAILURE);
                 }
                 // then run for current selection
@@ -260,7 +260,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
         status = pthread_join(threads[i], NULL);
         if (status != 0)
         {
-            printf("Thread %zu failed to join correctly\n", i);
+            fprintf(stderr,"Thread %zu failed to join correctly\n", i);
             exit(EXIT_FAILURE);
         }
         else

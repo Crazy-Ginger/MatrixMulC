@@ -10,8 +10,8 @@
 struct Matrix
 {
     long long *ptr;
-    size_t col;
-    size_t row;
+    ssize_t col;
+    ssize_t row;
 };
 
 struct Passer
