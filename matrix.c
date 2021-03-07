@@ -203,9 +203,9 @@ void *mul_threaded(void *passed)
         tot += tmp;
     }
     // printf("id: %zi\ttot: %lli\n", pass->id, tot);
-    pthread_mutex_lock(&locker);
+    // pthread_mutex_lock(&locker);
     *(pass->result->ptr + (pass->row * pass->result->row) + pass->col) = tot;
-    pthread_mutex_unlock(&locker);
+    // pthread_mutex_unlock(&locker);
     printf("id: %zi closed\n", pass->id);
     pthread_exit(0);
 }
@@ -227,14 +227,16 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
         result->col = result->row = -1;
         return;
     }
-    // if result ptr not initilised allocate memory
-    if (result->ptr == NULL)
-    {
-        result->ptr = (long long *) malloc(sizeof(long long) * result->col * result->row);
-    }
 
     result->col = mat2->col;
     result->row = mat1->row;
+
+    // if result ptr initilised reallocate memory
+    if (result->ptr != NULL)
+        free(result->ptr);
+        
+    result->ptr = (long long *) malloc(sizeof(long long) * result->col * result->row);
+
 
     // gets number of threads (leaves one for other operations)
     int status = 0;
@@ -244,9 +246,9 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
     struct Passer passers[max_threads];
 
     // initialise mutex and thread attributes
-    pthread_mutex_init(&locker, NULL);
-    pthread_attr_t thread_att;
-    pthread_attr_init(&thread_att);
+    // pthread_mutex_init(&locker, NULL);
+    // pthread_attr_t thread_att;
+    // pthread_attr_init(&thread_att);
 
     for (size_t row = 0; row < mat1->row; row++)
     {
@@ -264,7 +266,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
                 
                 passers[running_threads].id = running_threads;
                 printf("Opening thread id: %li upon: %zi %zu\n", running_threads, row, col);
-                status = pthread_create(&threads[running_threads], &thread_att, mul_threaded, &passers[running_threads]);
+                status = pthread_create(&threads[running_threads], NULL, mul_threaded, &passers[running_threads]);
                 if (status != 0)
                 {
                     fprintf(stderr, "Thread %zu failed to initialize correctly\n", running_threads);
@@ -278,7 +280,9 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
                 // join all threads
                 for (size_t i = 0; i < max_threads; i++)
                 {
+                    fprintf(stderr, "Inside: Attempting to join %zu\n", i);
                     status = pthread_join(threads[i], NULL);
+                    fprintf(stderr, "'Joined' %zu\n", i);
                     if (status != 0)
                     {
                         fprintf(stderr, "Thread %zu failed to join correctly\n", i);
@@ -306,7 +310,9 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
     // end all existing threads
     for (size_t i = 0; i < running_threads; i++)
     {
+        fprintf(stderr, "Ending: Attempting to join %zu\n", i);
         status = pthread_join(threads[i], NULL);
+        fprintf(stderr, "'Joined': %zu\n", i);
         if (status != 0)
         {
             fprintf(stderr,"Thread %zu failed to join correctly\n", i);
@@ -315,7 +321,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
         else
             printf("Thread %zu joined successfully finaly\n", i);
     }
-    pthread_mutex_destroy(&locker);
+    // pthread_mutex_destroy(&locker);
 }
 
 // old functions
