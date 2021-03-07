@@ -19,7 +19,7 @@ struct Passer
     ssize_t id;
     struct Matrix *mat1;
     struct Matrix *mat2;
-    struct Matrix *result;
+    long long *result;
     size_t row;
     size_t col;
 };

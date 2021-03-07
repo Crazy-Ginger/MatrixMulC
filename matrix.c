@@ -204,8 +204,11 @@ void *mul_threaded(void *passed)
     }
     // printf("id: %zi\ttot: %lli\n", pass->id, tot);
     // pthread_mutex_lock(&locker);
-    *(pass->result->ptr + (pass->row * pass->result->row) + pass->col) = tot;
+
+    // *(pass->result->ptr + (pass->row * pass->result->row) + pass->col) = tot;
+    *(pass->result) = tot;
     // pthread_mutex_unlock(&locker);
+    
     printf("id: %zi closed\n", pass->id);
     pthread_exit(0);
 }
@@ -239,7 +242,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
 
 
     // gets number of threads (leaves one for other operations)
-    int status = 0;
+    int status = -1;
     size_t running_threads = 0;
     const size_t max_threads = sysconf(_SC_NPROCESSORS_ONLN) - 1;
     pthread_t threads[max_threads];
@@ -258,7 +261,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
             passers[running_threads].row = row;
             passers[running_threads].mat1 = mat1;
             passers[running_threads].mat2 = mat2;
-            passers[running_threads].result = result;
+            passers[running_threads].result = (result->ptr + (row * result->row) + col);
             
             if (running_threads < max_threads)
             {
@@ -278,22 +281,22 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
             else
             {
                 // join all threads
-                for (size_t i = 0; i < max_threads; i++)
+                for (size_t i = 0; i < running_threads; i++)
                 {
-                    fprintf(stderr, "Inside: Attempting to join %zu\n", i);
+                    fprintf(stderr, "Rerunners: about to join %zu\n", i);
                     status = pthread_join(threads[i], NULL);
-                    fprintf(stderr, "'Joined' %zu\n", i);
+                    // fprintf(stderr, "'Joined' %zu\n", i);
                     if (status != 0)
                     {
                         fprintf(stderr, "Thread %zu failed to join correctly\n", i);
                         exit(EXIT_FAILURE);
                     }
                     else
-                        printf("Thread %zu joined successfully in else\n", i);
+                        printf("Thread %zu joined , can be rerun\n", i);
                     passers[i].id = -1;
                     --running_threads;
+                    
                 }
-
                 if (running_threads != 0)
                 {
                     fprintf(stderr, "Not all threads closed\n");
@@ -301,8 +304,8 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
                 }
                 // then run for current selection
                 passers[running_threads].id = running_threads;
-                printf("Opening thread id: %li upon: %zi %zu\n", running_threads, row, col);
-                pthread_create(&threads[running_threads], NULL, mul_threaded, (void *) &passers[running_threads]);
+                printf("Opening thread id: %zu upon: %zi %zu\n", running_threads, row, col);
+                pthread_create(&threads[running_threads], NULL, mul_threaded, &passers[running_threads]);
                 ++running_threads;
             }
         }
@@ -310,16 +313,16 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
     // end all existing threads
     for (size_t i = 0; i < running_threads; i++)
     {
-        fprintf(stderr, "Ending: Attempting to join %zu\n", i);
+        // fprintf(stderr, "Ending: Attempting to join %zu\n", i);
         status = pthread_join(threads[i], NULL);
-        fprintf(stderr, "'Joined': %zu\n", i);
+        // fprintf(stderr, "'Joined': %zu\n", i);
         if (status != 0)
         {
             fprintf(stderr,"Thread %zu failed to join correctly\n", i);
             exit(EXIT_FAILURE);
         }
         else
-            printf("Thread %zu joined successfully finaly\n", i);
+            printf("Thread %zu joined at last\n", i);
     }
     // pthread_mutex_destroy(&locker);
 }

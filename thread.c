@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
     fst.row = fst.col = sec.row = sec.col = dim;
     
     // starts program counter clock
-    START_CLOCK(program);
+    
 
     /* // generates each matrix on seperate threads (so much slower than just running in serial)+
     pthread_t fst_create;
@@ -52,9 +52,11 @@ int main(int argc, char *argv[])
     printf("Sec:\n");
     mat_print(&sec);
     printf("\n\n");
+    START_CLOCK(program);
     mat_mul_threaded(&fst, &sec, &mul);
-    mat_write(&mul, "res.txt");
     STOP_CLOCK(program);
+    mat_write(&mul, "res.txt");
+    
     
 
     printf("Mul:\n");
