@@ -47,21 +47,22 @@ int main(int argc, char *argv[])
     mat_write(&fst, "data1.txt");
     mat_write(&sec, "data2.txt");
 
-    printf("\nfst:\n");
-    mat_print(&fst);
-    printf("Sec:\n");
-    mat_print(&sec);
-    printf("\n\n");
     START_CLOCK(program);
     mat_mul_threaded(&fst, &sec, &mul);
     STOP_CLOCK(program);
+
     mat_write(&mul, "res.txt");
-    
-    
 
-    printf("Mul:\n");
-    mat_print(&mul);
-
+    if (dim < 10)
+    {
+        printf("\nfst:\n");
+        mat_print(&fst);
+        printf("Sec:\n");
+        mat_print(&sec);
+        printf("Mul:\n");
+        mat_print(&mul);
+    }
+    
     free(fst.ptr);
     free(sec.ptr);
     free(mul.ptr);

@@ -29,11 +29,15 @@ int main(int argc, char *argv[])
     fst.row = fst.col = sec.row = sec.col = dim;
 
     // starts program counter clock
-    START_CLOCK(program);
+    
 
     mat_create(&fst);
     mat_create(&sec);
-   
+    
+    mat_write(&fst, "data1.txt");
+    mat_write(&sec, "data2.txt");
+    
+    START_CLOCK(program);
     mat_mul(&fst, &sec, &mul);
     STOP_CLOCK(program);
     

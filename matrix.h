@@ -24,8 +24,6 @@ struct Passer
     size_t col;
 };
 
-pthread_mutex_t locker;
-
 void mat_print(struct Matrix *mat);
 int mat_read(struct Matrix *mat, char *file_name);
 void mat_write(struct  Matrix *mat, char *file_name);
