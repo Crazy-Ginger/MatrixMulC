@@ -41,13 +41,14 @@ int main(int argc, char *argv[])
 
     // mat_read(&fst, "data1.txt");
     // mat_read(&sec, "data2.txt");
-    mat_create(&fst);
-    mat_create(&sec);
+    mat_create(&fst, 100);
+    mat_create(&sec, 100);
     
     mat_write(&fst, "data1.txt");
     mat_write(&sec, "data2.txt");
 
     START_CLOCK(program);
+    
     mat_mul_threaded(&fst, &sec, &mul);
     STOP_CLOCK(program);
 
@@ -62,7 +63,7 @@ int main(int argc, char *argv[])
         printf("Mul:\n");
         mat_print(&mul);
     }
-    
+
     free(fst.ptr);
     free(sec.ptr);
     free(mul.ptr);

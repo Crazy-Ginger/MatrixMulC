@@ -31,8 +31,8 @@ int main(int argc, char *argv[])
     // starts program counter clock
     
 
-    mat_create(&fst);
-    mat_create(&sec);
+    mat_create(&fst, 10);
+    mat_create(&sec, 10);
     
     mat_write(&fst, "data1.txt");
     mat_write(&sec, "data2.txt");
@@ -51,8 +51,6 @@ int main(int argc, char *argv[])
         mat_print(&mul);
     }
 
-    mat_write(&fst, "data1.txt");
-    mat_write(&sec, "data2.txt");
     mat_write(&mul, "res.txt");
 
     free(fst.ptr);
