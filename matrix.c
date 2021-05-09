@@ -420,6 +420,7 @@ void *mul_threaded(void *passed)
     *(pass->result) = tot;
     pthread_exit(0);
 }
+
 // old functions
 void *mat_create_thread(void *Matptr)
 {
