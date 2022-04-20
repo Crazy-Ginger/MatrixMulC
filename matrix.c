@@ -38,7 +38,7 @@ void mat_read(struct Matrix *mat, char *file_name)
     
     // allocate memory to matrix
     free(mat->ptr);
-    mat->ptr = (long long *) malloc(sizeof(long long) * mat->row * mat->col);
+    mat->ptr = (double *) malloc(sizeof(double) * mat->row * mat->col);
     
     // resets file pointer to top
     rewind(fp);
@@ -76,7 +76,7 @@ void mat_create(struct Matrix *mat, int n)
     if (mat->ptr != NULL) 
         free(mat->ptr);
 
-    mat->ptr = (long long *) malloc(sizeof(long long) * mat->col * mat->row);
+    mat->ptr = (double *) malloc(sizeof(double) * mat->col * mat->row);
     #pragma omp parallel for
     for (size_t i = 0; i < mat->col*mat->row; i++)
     {
@@ -156,7 +156,7 @@ void mat_add(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *result)
     result->col = mat1->col;
     result->row = mat1->row;
     free(result->ptr);
-    result->ptr = (long long *) malloc(sizeof(long long) * result->col * result->row);
+    result->ptr = (double *) malloc(sizeof(double) * result->col * result->row);
     
     // loops over each element storing addition
     #pragma omp parallel for
@@ -184,7 +184,7 @@ void mat_sub(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *result)
     result->col = mat1->col;
     result->row = mat1->row;
     free(result->ptr);
-    result->ptr = (long long *) malloc(sizeof(long long) * mat1->col * result->row);
+    result->ptr = (double *) malloc(sizeof(double) * mat1->col * result->row);
     
     // loops over each element storing addition
     #pragma omp parallel for
@@ -209,7 +209,7 @@ void mat_sca(struct Matrix *mat, double n, struct Matrix *result)
     result->col = mat->col;
     result->row = mat->row;
     free(result->ptr);
-    result->ptr = (long long *) malloc(sizeof(long long) * result->col * result->row);
+    result->ptr = (double *) malloc(sizeof(double) * result->col * result->row);
     
     // loops over each element storing addition
     #pragma omp parallel for
@@ -233,7 +233,7 @@ void mat_div(struct Matrix *mat, double n, struct Matrix *result)
     result->col = mat->col;
     result->row = mat->row;
     free(result->ptr);
-    result->ptr = (long long *) malloc(sizeof(long long) * result->col * result->row);
+    result->ptr = (double *) malloc(sizeof(double) * result->col * result->row);
     
     // loops over each element storing addition
     #pragma omp parallel for
@@ -256,7 +256,7 @@ void mat_trans(struct Matrix *mat, struct Matrix *trans)
    trans->col = mat->row;
    trans->row = mat->col;
    free(trans->ptr);
-   trans->ptr = (long long *) malloc(sizeof(long long) * trans->col * trans->row);
+   trans->ptr = (double *) malloc(sizeof(double) * trans->col * trans->row);
     
     // #pragma omp parallel for
     for (size_t i = 0; i < trans->col * trans->row; i++)
@@ -286,9 +286,9 @@ void mat_mul(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *result)
     result->col = mat2->col;
     result->row = mat1->row;
     free(result->ptr);
-    result->ptr = (long long *) malloc(sizeof(long long) * result->col * result->row);
+    result->ptr = (double *) malloc(sizeof(double) * result->col * result->row);
     
-    long long tot = 0;
+    double tot = 0;
     for (size_t row = 0; row < mat1->row; row++)
     {
         for (size_t col = 0; col < mat2->col; col++)
@@ -325,7 +325,7 @@ void mat_mul_threaded(struct Matrix *mat1, struct Matrix *mat2, struct Matrix *r
     result->col = mat2->col;
     result->row = mat1->row;
     free(result->ptr);
-    result->ptr = (long long *) malloc(sizeof(long long) * result->col * result->row);
+    result->ptr = (double *) malloc(sizeof(double) * result->col * result->row);
 
 
     // get number of threads, create array for passing data to threads
@@ -411,10 +411,10 @@ void *mul_threaded(void *passed)
 
     struct Passer *pass = (struct Passer *) passed;
 
-    long long tot = 0;
+    double tot = 0;
     for (size_t k = 0; k < pass->mat1->col; k++)
     {
-        long long tmp = *(pass->mat1->ptr + (pass->row * pass->mat1->col) + k) * *(pass->mat2->ptr + (pass->mat2->col * k) + pass->col);
+        double tmp = *(pass->mat1->ptr + (pass->row * pass->mat1->col) + k) * *(pass->mat2->ptr + (pass->mat2->col * k) + pass->col);
         tot += tmp;
     }
     *(pass->result) = tot;

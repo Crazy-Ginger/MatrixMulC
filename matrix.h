@@ -10,7 +10,7 @@
 
 struct Matrix
 {
-    long long *ptr;
+    double *ptr;
     ssize_t col;
     ssize_t row;
 };
@@ -20,7 +20,7 @@ struct Passer
     ssize_t id;
     struct Matrix *mat1;
     struct Matrix *mat2;
-    long long *result;
+    double *result;
     size_t row;
     size_t col;
 };
