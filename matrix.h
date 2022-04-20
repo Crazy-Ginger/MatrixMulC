@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <pthread.h>
+#include <unistd.h>
 
 #ifndef MAT_HEADER
 #define MAT_HEADER

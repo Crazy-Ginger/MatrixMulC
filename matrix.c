@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <stdio.h>
 #include <stdlib.h>
 #include <pthread.h>
@@ -56,7 +57,7 @@ void mat_read(struct Matrix *mat, char *file_name)
         char *numb = strtok(line, ",");
         while (numb != NULL)
         {
-            sscanf(numb, "%lld", (mat->ptr +index));
+            sscanf(numb, "%lf", (mat->ptr +index));
             index++;
             numb = strtok(NULL, ",");
         }
@@ -96,7 +97,7 @@ void mat_print(struct Matrix *mat)
     {
         for (size_t col= 0; col < mat->col; col++)
         {
-            printf("%lld, ", *(mat->ptr + (mat->col * row) + col));
+            printf("%lf, ", *(mat->ptr + (mat->col * row) + col));
             if (mat->row < 23) 
                 printf("\t");
         }
@@ -122,7 +123,7 @@ void mat_write(struct Matrix *mat, char *file_name)
     int line_counter = 1;
     for (size_t i = 0; i < mat->col*mat->row; i++)
     {
-        fprintf(fp, "%lli", *(mat->ptr + i));
+        fprintf(fp, "%lf", *(mat->ptr + i));
         if (line_counter == mat->col)
         {
             fprintf(fp, "\n");
